@@ -9,19 +9,31 @@
 (function(self) {
     'use strict';
 
-    var nativeURLSearchParams = self.URLSearchParams ? self.URLSearchParams : null,
-        isSupportObjectConstructor = nativeURLSearchParams && (new nativeURLSearchParams({a: 1})).toString() === 'a=1',
-        // There is a bug in safari 10.1 (and earlier) that incorrectly decodes `%2B` as an empty space and not a plus.
-        decodesPlusesCorrectly = nativeURLSearchParams && (new nativeURLSearchParams('s=%2B').get('s') === '+'),
-        __URLSearchParams__ = "__URLSearchParams__",
+    var nativeURLSearchParams = self.URLSearchParams ? self.URLSearchParams : null;
+
+    // split this across multiple lines and assignments to aid debugging of 'undefined is not a function' errors
+    var isSupportObjectConstructor
+    if (nativeURLSearchParams) {
+        var isSupportObjectConstructorNative = new nativeURLSearchParams({a: 1})
+        isSupportObjectConstructor = isSupportObjectConstructorNative.toString() === 'a=1';
+    }
+
+    // There is a bug in safari 10.1 (and earlier) that incorrectly decodes `%2B` as an empty space and not a plus.
+    // split this across multiple lines and assignments to aid debugging of 'undefined is not a function' errors
+    var decodesPlusesCorrectly
+    if (nativeURLSearchParams) {
+        var decodesPlusesCorrectlyNative = new nativeURLSearchParams('s=%2B')
+        decodesPlusesCorrectly = decodesPlusesCorrectlyNative.get('s') === '+';
+    }
+    var __URLSearchParams__ = "__URLSearchParams__";
         // Fix bug in Edge which cannot encode ' &' correctly
-        encodesAmpersandsCorrectly = nativeURLSearchParams ? (function() {
+    var encodesAmpersandsCorrectly = nativeURLSearchParams ? (function() {
             var ampersandTest = new nativeURLSearchParams();
             ampersandTest.append('s', ' &');
             return ampersandTest.toString() === 's=+%26';
-        })() : true,
-        prototype = URLSearchParamsPolyfill.prototype,
-        iterable = !!(self.Symbol && self.Symbol.iterator);
+        })() : true;
+    var prototype = URLSearchParamsPolyfill.prototype;
+    var iterable = !!(self.Symbol && self.Symbol.iterator);
 
     if (nativeURLSearchParams && isSupportObjectConstructor && decodesPlusesCorrectly && encodesAmpersandsCorrectly) {
         return;
